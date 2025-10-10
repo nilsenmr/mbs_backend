@@ -1,0 +1,65 @@
+import { db } from '../../../config/db';
+
+export const registrarPrenda = async ({
+  categoria_id,
+  estilo_id,
+  estado_id,
+  talla_id,
+  color,
+  precio,
+  imagen_real,
+  imagen_referencial
+}: {
+  categoria_id: number;
+  estilo_id?: number;
+  estado_id: number;
+  talla_id: number;
+  color: string;
+  precio: number;
+  imagen_real?: string;
+  imagen_referencial?: string;
+}) => {
+  const catRes = await db.query(
+    'SELECT codigo FROM categorias WHERE id = $1',
+    [categoria_id]
+  );
+  if (catRes.rowCount === 0) throw 'Categoría inválida';
+  let prefijo = catRes.rows[0].codigo;
+
+  if (estilo_id) {
+    const estRes = await db.query(
+      'SELECT codigo FROM estilos WHERE id = $1',
+      [estilo_id]
+    );
+    if (estRes.rowCount === 0) throw 'Estilo inválida';
+    prefijo = `${prefijo}-${estRes.rows[0].codigo}`;
+  }
+
+  const countRes = await db.query(
+    `SELECT COUNT(*) FROM prendas WHERE codigo ILIKE $1`,
+    [`${prefijo}-%`]
+  );
+  const count = parseInt(countRes.rows[0].count, 10);
+  const nuevoCodigo = `${prefijo}-${count + 1}`;
+
+  await db.query(
+    `INSERT INTO prendas (
+      categoria_id, estilo_id, estado_id, talla_id,
+      color, precio, imagen_real, imagen_referencial, codigo, created_by
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+    [
+      categoria_id,
+      estilo_id ?? null,
+      estado_id,
+      talla_id,
+      color,
+      precio,
+      imagen_real ?? null,
+      imagen_referencial ?? null,
+      nuevoCodigo,
+      'sistema'
+    ]
+  );
+
+  return { mensaje: 'Prenda registrada', codigo: nuevoCodigo };
+};

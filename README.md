@@ -124,3 +124,146 @@ nohup ./arrancar_backend.sh > backend.log 2>&1 &
 ## VALIDAR DESDE EL NAVEGADOR O POSTMAN:
 
 [http://192.168.0.169:3001/api/prendas/registrar-prenda]()
+
+
+
+# 🧠 Guía Literal para Levantar el Backend con PM2 (Node.js + Express)
+
+Esta guía permite ejecutar el backend de MSB SHOP en segundo plano, con reinicio automático y monitoreo persistente usando PM2.
+
+---
+
+## ✅ Requisitos Previos
+
+Asegúrate de tener instalado:
+
+- Node.js (v18+ recomendado)
+- npm
+- PM2
+
+Instalación de PM2:
+
+```
+sudo npm install -g pm2
+```
+
+### 🚀 Levantar el Backend con PM2
+Desde la raíz del proyecto backend:
+
+```
+pm2 start npm --name msb-backend -- start
+```
+
+Esto ejecuta el script npm start como proceso persistente llamado msb-backend.
+
+
+### 💾 Guardar Configuración para Reinicio Automático
+
+```
+pm2 save
+```
+
+### 🔁 Habilitar Reinicio al Arrancar el Sistema
+```
+pm2 startup
+```
+Este comando mostrará una línea como esta:
+
+```
+sudo env PATH=$PATH:/home/tu_usuario/.nvm/versions/node/v18.x/bin pm2 startup systemd -u tu_usuario --hp /home/tu_usuario
+```
+Ejecuta esa línea tal cual para registrar el servicio.
+
+## 🛠️ Comandos Útiles de PM2
+
+|Acción                        | Comando                    |
+|------------------------------|----------------------------|
+| Ver procesos activos         | `pm2 list`                |
+| Ver logs del backend         | `pm2 logs msb-backend`    |
+| Monitorear en tiempo real    | `pm2 monit`               |
+| Reiniciar el backend         | `pm2 restart msb-backend` |
+| Detener el backend           | `pm2 stop msb-backend`    |
+| Eliminar del monitoreo       | `pm2 delete msb-backend`  |
+
+## 📦 Endpoints del Backend MSB
+Una vez levantado el backend, tendrás disponibles los siguientes endpoints bajo el prefijo ```/api/prendas```:
+
+➕ Registrar prenda
+```
+POST /api/prendas/registrar-prenda
+```
+Body esperado:
+```
+{
+  "categoria_id": 1,
+  "estado_id": 1,
+  "talla_id": 2,
+  "color": "Negro",
+  "precio": 59.99,
+  "imagen_real": "https://mi-bucket.com/real.jpg",
+  "imagen_referencial": "https://mi-bucket.com/ref.jpg"
+}
+
+```
+
+✏️ Actualizar prenda
+```
+POST /api/prendas/actualizar-prenda
+```
+Body esperado:
+```
+{
+  "id": 3,
+  "color": "Azul",
+  "precio": 49.99
+}
+```
+
+📋 Listar prendas con total
+```
+GET /api/prendas/listar-prendas
+```
+Respuesta:
+```
+{
+  "total": 3,
+  "registros": [
+    {
+      "id": 3,
+      "codigo": "ST-FORMAL-1",
+      "color": "Negro",
+      "precio": "59.99",
+      "imagen_real": "https://mi-bucket.com/real.jpg",
+      "imagen_referencial": "https://mi-bucket.com/ref.jpg",
+      "categoria": "Suéteres",
+      "estilo": "Formal",
+      "estado": "DISPONIBLE",
+      "talla": "M"
+    },
+    {
+      "id": 2,
+      "codigo": "BL-CASUAL-2",
+      "color": "Negro",
+      "precio": "59.99",
+      "imagen_real": "https://mi-bucket.com/real.jpg",
+      "imagen_referencial": "https://mi-bucket.com/ref.jpg",
+      "categoria": "Blusas",
+      "estilo": "Casual",
+      "estado": "DISPONIBLE",
+      "talla": "S"
+    },
+    {
+      "id": 1,
+      "codigo": "BL-CASUAL-1",
+      "color": "Negro",
+      "precio": "59.99",
+      "imagen_real": "https://mi-bucket.com/real.jpg",
+      "imagen_referencial": "https://mi-bucket.com/ref.jpg",
+      "categoria": "Blusas",
+      "estilo": "Casual",
+      "estado": "DISPONIBLE",
+      "talla": "L"
+    }
+  ]
+}
+```

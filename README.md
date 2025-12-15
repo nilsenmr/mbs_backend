@@ -267,3 +267,47 @@ Respuesta:
   ]
 }
 ```
+
+## 🔁 Gestión de procesos con PM2
+Esta guía documenta cómo administrar el backend msb-backend usando PM2, empezando por listar y validar duplicados, y luego aplicar acciones de eliminación, reinicio, guardado y monitoreo.
+
+📋 Listar procesos activos
+Antes de cualquier acción, valida qué procesos están corriendo:
+
+```
+pm2 list
+```
+Si ves más de una instancia con el mismo nombre (msb-backend), el proceso está duplicado.
+
+🧹 Eliminar procesos duplicados
+Para matar todas las instancias del proceso con nombre msb-backend:
+
+```
+pm2 delete msb-backend
+Esto elimina cualquier ejecución previa y limpia el entorno.
+```
+
+🚀 Iniciar el backend nuevamente
+Desde la raíz del proyecto:
+
+```
+pm2 start npm --name msb-backend -- start
+```
+Este comando levanta el backend usando el script start de tu package.json y lo registra bajo el nombre msb-backend.
+
+💾 Guardar configuración para reinicio automático
+```
+pm2 save
+```
+Guarda el estado actual de los procesos para que se reinicien automáticamente al arrancar el sistema.
+
+🔁 Reiniciar el backend manualmente
+```
+pm2 restart msb-backend
+```
+Reinicia el proceso sin detener el monitoreo ni perder el historial.
+
+🔍 Ver logs en tiempo real
+```
+pm2 logs msb-backend
+```

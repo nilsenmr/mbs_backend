@@ -31,7 +31,7 @@ export const registrarPrenda = async ({
       'SELECT codigo FROM estilos WHERE id = $1',
       [estilo_id]
     );
-    if (estRes.rowCount === 0) throw 'Estilo inválida';
+    if (estRes.rowCount === 0) throw 'Estilo inválido';
     prefijo = `${prefijo}-${estRes.rows[0].codigo}`;
   }
 
@@ -40,7 +40,10 @@ export const registrarPrenda = async ({
     [`${prefijo}-%`]
   );
   const count = parseInt(countRes.rows[0].count, 10);
-  const nuevoCodigo = `${prefijo}-${count + 1}`;
+
+
+  const correlativoFormateado = String(count + 1).padStart(4, '0');
+  const nuevoCodigo = `${prefijo}-${correlativoFormateado}`;
 
   await db.query(
     `INSERT INTO prendas (

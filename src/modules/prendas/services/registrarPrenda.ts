@@ -6,9 +6,7 @@ export const registrarPrenda = async ({
   estado_id,
   talla_id,
   color,
-  precio,
-  imagen_real,
-  imagen_referencial
+  precio
 }: {
   categoria_id: number;
   estilo_id?: number;
@@ -16,35 +14,30 @@ export const registrarPrenda = async ({
   talla_id: number;
   color: string;
   precio: number;
-  imagen_real?: string;
-  imagen_referencial?: string;
 }) => {
-  const catRes = await db.query(
-    'SELECT codigo FROM categorias WHERE id = $1',
-    [categoria_id]
-  );
+ 
+  const catRes = await db.query('SELECT codigo FROM categorias WHERE id = $1', [categoria_id]);
   if (catRes.rowCount === 0) throw 'Categoría inválida';
   let prefijo = catRes.rows[0].codigo;
 
+ 
   if (estilo_id) {
-    const estRes = await db.query(
-      'SELECT codigo FROM estilos WHERE id = $1',
-      [estilo_id]
-    );
+    const estRes = await db.query('SELECT codigo FROM estilos WHERE id = $1', [estilo_id]);
     if (estRes.rowCount === 0) throw 'Estilo inválido';
     prefijo = `${prefijo}-${estRes.rows[0].codigo}`;
   }
 
-  const countRes = await db.query(
-    `SELECT COUNT(*) FROM prendas WHERE codigo ILIKE $1`,
-    [`${prefijo}-%`]
-  );
+  
+  const countRes = await db.query(`SELECT COUNT(*) FROM prendas WHERE codigo ILIKE $1`, [`${prefijo}-%`]);
   const count = parseInt(countRes.rows[0].count, 10);
-
-
   const correlativoFormateado = String(count + 1).padStart(4, '0');
   const nuevoCodigo = `${prefijo}-${correlativoFormateado}`;
+  
+  const baseRepo = "https://raw.githubusercontent.com/nilsenmr/imagenes/main/";
+  const urlReferencial = `${baseRepo}${nuevoCodigo}.jpeg`;
+  const urlReal = `${baseRepo}${nuevoCodigo}-real.jpeg`;
 
+  
   await db.query(
     `INSERT INTO prendas (
       categoria_id, estilo_id, estado_id, talla_id,
@@ -57,8 +50,8 @@ export const registrarPrenda = async ({
       talla_id,
       color,
       precio,
-      imagen_real ?? null,
-      imagen_referencial ?? null,
+      urlReal,        
+      urlReferencial, 
       nuevoCodigo,
       'sistema'
     ]

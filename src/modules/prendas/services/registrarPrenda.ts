@@ -69,36 +69,55 @@ export const registrarPrendaDesdeExcel = async (datosPrenda: any) => {
   if (!catRes.rows || catRes.rows.length === 0) throw `Sigla categoría "${siglaCategoria}" no existe`;
   const categoria_id = catRes.rows[0].id;
 
-  let estilo_id = undefined;
+  let estilo_id = null;
   if (siglaEstilo) {
     const estRes = await db.query('SELECT id FROM estilos WHERE codigo = $1', [siglaEstilo]);
-    if (estRes.rows && estRes.rows.length > 0) {
-      estilo_id = estRes.rows[0].id;
-    }
+    if (estRes.rows && estRes.rows.length > 0) estilo_id = estRes.rows[0].id;
   }
 
   const tallaRes = await db.query('SELECT id FROM tallas WHERE nombre ILIKE $1', [TALLA?.trim()]);
   if (!tallaRes.rows || tallaRes.rows.length === 0) throw `Talla "${TALLA}" no existe`;
   const talla_id = tallaRes.rows[0].id;
 
-  // BUSCAR ID DE ESTADO EN estados_prenda
-  // Buscamos por la columna "codigo" de tu tabla de estados (DISPONIBLE, APARTADA, VENDIDA)
   const estadoRes = await db.query(
     'SELECT id FROM estados_prenda WHERE codigo = $1', 
     [ESTATUS?.toUpperCase().trim() || 'DISPONIBLE']
   );
-  
-  if (!estadoRes.rows || estadoRes.rows.length === 0) {
-    throw `El estado "${ESTATUS}" no es válido. Use: DISPONIBLE, APARTADA o VENDIDA`;
-  }
+  if (!estadoRes.rows || estadoRes.rows.length === 0) throw `Estado "${ESTATUS}" inválido`;
   const estado_id = estadoRes.rows[0].id;
 
-  return await registrarPrenda({
-    categoria_id,
-    estilo_id,
-    estado_id,
-    talla_id,
-    color: COLOR || 'VARIOS',
-    precio: parseFloat(PRECIO) || 0
-  });
+  const baseRepo = "https://raw.githubusercontent.com/nilsenmr/imagenes/main/";
+  const codigoLimpio = CODIGO.toUpperCase().trim();
+  const urlReferencial = `${baseRepo}${codigoLimpio}.jpeg`;
+  const urlReal = `${baseRepo}${codigoLimpio}-real.jpeg`;
+
+  await db.query(
+    `INSERT INTO prendas (
+      categoria_id, estilo_id, estado_id, talla_id,
+      color, precio, imagen_real, imagen_referencial, codigo, created_by
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+    ON CONFLICT (codigo) 
+    DO UPDATE SET 
+      estado_id = EXCLUDED.estado_id,
+      talla_id = EXCLUDED.talla_id,
+      color = EXCLUDED.color,
+      precio = EXCLUDED.precio,
+      categoria_id = EXCLUDED.categoria_id,
+      estilo_id = EXCLUDED.estilo_id
+    `,
+    [
+      categoria_id,
+      estilo_id,
+      estado_id,
+      talla_id,
+      COLOR || 'VARIOS',
+      parseFloat(PRECIO) || 0,
+      urlReal,        
+      urlReferencial, 
+      codigoLimpio,
+      'excel_import'
+    ]
+  );
+
+  return { mensaje: 'Procesado', codigo: codigoLimpio };
 };

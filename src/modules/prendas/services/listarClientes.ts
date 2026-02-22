@@ -8,6 +8,7 @@ export const listarClientes = async () => {
         c.nombre, 
         c.apellido, 
         c.telefono,
+        TO_CHAR(c.fecha_creacion, 'DD/MM/YYYY HH12:MI:SS AM') as fecha_creacion,
         e.nombre as estado,
         e.id as id_estado
       FROM clientes c

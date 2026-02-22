@@ -266,6 +266,236 @@ Respuesta:
 }
 ```
 
+📋 Listar clientes
+```
+GET /api/prendas/listar-clientes
+```
+Respuesta:
+```
+[
+    {
+        "id": 1,
+        "nombre": "NILSEN MARTINEZ",
+        "apellido": null,
+        "telefono": "04241987215",
+        "estado": "ACTIVO",
+        "id_estado": 1
+    },
+    {
+        "id": 2,
+        "nombre": "NORCARLY",
+        "apellido": null,
+        "telefono": null,
+        "estado": "ACTIVO",
+        "id_estado": 1
+    },
+    {
+        "id": 3,
+        "nombre": "CLARIBEL",
+        "apellido": null,
+        "telefono": null,
+        "estado": "ACTIVO",
+        "id_estado": 1
+    },
+    {
+        "id": 4,
+        "nombre": "YOGLEIDYS",
+        "apellido": null,
+        "telefono": null,
+        "estado": "ACTIVO",
+        "id_estado": 1
+    },
+    {
+        "id": 5,
+        "nombre": "KEILA",
+        "apellido": null,
+        "telefono": null,
+        "estado": "ACTIVO",
+        "id_estado": 1
+    },
+    {
+        "id": 6,
+        "nombre": "KISBEL",
+        "apellido": null,
+        "telefono": null,
+        "estado": "ACTIVO",
+        "id_estado": 1
+    },
+    {
+        "id": 7,
+        "nombre": "MAYELA",
+        "apellido": null,
+        "telefono": null,
+        "estado": "ACTIVO",
+        "id_estado": 1
+    },
+    {
+        "id": 8,
+        "nombre": "NAYIBET",
+        "apellido": null,
+        "telefono": null,
+        "estado": "ACTIVO",
+        "id_estado": 1
+    },
+    {
+        "id": 9,
+        "nombre": "GREICY",
+        "apellido": null,
+        "telefono": null,
+        "estado": "ACTIVO",
+        "id_estado": 1
+    }
+]
+```
+💻 Listar datos maestros
+```
+GET /api/prendas/maestros-prendas
+```
+Respuesta:
+```
+{
+    "success": true,
+    "data": {
+        "categorias": [
+            {
+                "value": 8,
+                "label": "Blazer"
+            },
+            {
+                "value": 2,
+                "label": "Blusa"
+            },
+            {
+                "value": 10,
+                "label": "Body"
+            },
+            {
+                "value": 7,
+                "label": "Braga"
+            },
+            {
+                "value": 9,
+                "label": "Chaqueta"
+            },
+            {
+                "value": 4,
+                "label": "Conjunto"
+            },
+            {
+                "value": 14,
+                "label": "Falda"
+            },
+            {
+                "value": 13,
+                "label": "Licra"
+            },
+            {
+                "value": 5,
+                "label": "Mono"
+            },
+            {
+                "value": 15,
+                "label": "Short"
+            },
+            {
+                "value": 11,
+                "label": "Sudadera"
+            },
+            {
+                "value": 3,
+                "label": "Suéter"
+            },
+            {
+                "value": 12,
+                "label": "Top"
+            },
+            {
+                "value": 6,
+                "label": "Traje de baño"
+            },
+            {
+                "value": 1,
+                "label": "Vestido"
+            }
+        ],
+        "estilos": [
+            {
+                "value": 4,
+                "label": "2 pz"
+            },
+            {
+                "value": 1,
+                "label": "Casual"
+            },
+            {
+                "value": 3,
+                "label": "Deportivo"
+            },
+            {
+                "value": 5,
+                "label": "Entero"
+            },
+            {
+                "value": 2,
+                "label": "Formal"
+            }
+        ],
+        "estados": [
+            {
+                "value": 2,
+                "label": "APARTADA"
+            },
+            {
+                "value": 1,
+                "label": "DISPONIBLE"
+            },
+            {
+                "value": 3,
+                "label": "VENDIDA"
+            }
+        ],
+        "tallas": [
+            {
+                "value": 7,
+                "label": "3XL"
+            },
+            {
+                "value": 8,
+                "label": "4XL"
+            },
+            {
+                "value": 4,
+                "label": "L"
+            },
+            {
+                "value": 3,
+                "label": "M"
+            },
+            {
+                "value": 2,
+                "label": "S"
+            },
+            {
+                "value": 9,
+                "label": "U"
+            },
+            {
+                "value": 5,
+                "label": "XL"
+            },
+            {
+                "value": 1,
+                "label": "XS"
+            },
+            {
+                "value": 6,
+                "label": "XXL"
+            }
+        ]
+    }
+}
+```
+
 ## 🔁 Gestión de procesos con PM2
 Esta guía documenta cómo administrar el backend msb-backend usando PM2, empezando por listar y validar duplicados, y luego aplicar acciones de eliminación, reinicio, guardado y monitoreo.
 

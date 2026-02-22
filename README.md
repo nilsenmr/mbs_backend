@@ -17,7 +17,7 @@ sudo sed -i "s/^#listen_addresses = 'localhost'/listen_addresses = '*'/g" /etc/p
 
 - Agregamos una regla de acceso en pg_hba.conf para permitir conexiones desde la red local (ajustar según tu rango IP):
 ```
-echo "host all all 192.168.0.0/24 md5" | sudo tee -a /etc/postgresql/14/main/pg_hba.conf
+echo "host all all 192.168.0.0/24 md5" | sudo tee -a /etc/postgresql/16/main/pg_hba.conf
 ```
 
 ### 3. Reiniciar el servicio 
@@ -539,3 +539,15 @@ Reinicia el proceso sin detener el monitoreo ni perder el historial.
 ```
 pm2 logs msb-backend
 ```
+
+
+
+
+# Lo que tenemos "en cola" para el Bloque de Seguridad:
+Tabla de Usuarios: Con soporte para roles, intentos fallidos y logs.
+
+Cifrado bcrypt: Para que las claves sean indescifrables.
+
+Middlewares de Auth: El "guardián" en el Backend que revisará el Token antes de soltar cualquier dato.
+
+Contexto de Autenticación en React: Para que el sistema sepa si hay un usuario logueado y muestre u oculte el menú

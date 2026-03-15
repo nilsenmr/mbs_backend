@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "start": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "exportar": "ts-node src/exportador.ts"
   },
   "keywords": [],
   "author": "",

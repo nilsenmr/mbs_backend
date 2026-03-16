@@ -14,28 +14,24 @@ const pool = new Pool({
 });
 
 async function exportarCatalogo() {
-
   const query = `
     SELECT 
       p.codigo, 
       p.precio, 
       p.imagen_referencial as imagen, 
       c.nombre as categoria, 
-      t.nombre as talla,
-      p.cantidad
+      t.nombre as talla
     FROM prendas p
     JOIN categorias c ON p.categoria_id = c.id
     JOIN tallas t ON p.talla_id = t.id
-    WHERE p.estado_id = 1  -- Solo activos
-    AND p.cantidad > 0;    -- SOLO LOS QUE TIENEN STOCK DISPONIBLE
+    WHERE p.estado_id = 1; 
   `;
 
   try {
-    console.log('--- 🚀 Iniciando exportación de prendas disponibles ---');
+    console.log('--- 🚀 Iniciando exportación sincronizada ---');
     const res = await pool.query(query);
-    
-    
     const contenido = JSON.stringify(res.rows, null, 2);
+    
 
     const rutas = [
       path.resolve(__dirname, '../../mbs_frontend/data/prendas.json'),
@@ -45,7 +41,7 @@ async function exportarCatalogo() {
     rutas.forEach((ruta) => {
       const dir = path.dirname(ruta);
       
-    
+      
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
@@ -55,7 +51,7 @@ async function exportarCatalogo() {
       console.log(`✅ Sincronizado en: ${ruta}`);
     });
 
-    console.log(`\n🎉 ¡Listo! ${res.rows.length} prendas con stock exportadas con éxito.`);
+    console.log(`\n🎉 ¡Listo! ${res.rows.length} prendas disponibles en ambos proyectos.`);
     
   } catch (err) {
     console.error('❌ Error durante la exportación:', err);

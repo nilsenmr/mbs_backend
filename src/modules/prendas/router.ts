@@ -8,8 +8,8 @@ import { registrarMasivoHandler } from "./controllers/registarMasivo";
 import { listarClientesHandler } from "./controllers/listarClientes";
 import { registrarClienteHandler } from "./controllers/registrarCliente";
 import { actualizarClienteHandler } from "./controllers/actualizarCliente";
-
-
+import { registrarVentaHandler } from "./controllers/registrarVentaController"; 
+import { listarVentasHandler } from "./controllers/listarVentas";
 
 const router = Router();
 
@@ -22,5 +22,7 @@ router.post("/actualizar-cliente", actualizarClienteHandler);
 router.get("/listar-clientes", listarClientesHandler);
 router.get("/maestros-prendas", getMaestrosPrendas);
 router.get("/maestros-clientes", getMaestrosClientes);
+router.post("/registrar-venta", registrarVentaHandler);
+router.get("/listar-ventas", listarVentasHandler);
 
 export default router;

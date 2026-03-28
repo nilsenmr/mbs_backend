@@ -1,6 +1,28 @@
 import { db } from '../../../config/db';
 
 export const listarVentas = async () => {
+  // 1. LÓGICA DE AUTO-ATRASO:
+  // Actualizamos a "Atrasado" (3) todas las cuotas que estén "Pendientes" (1)
+  // y cuya fecha de vencimiento sea menor a la fecha actual.
+  await db.query(`
+    UPDATE venta_cuotas 
+    SET id_estado_pago = 3 
+    WHERE id_estado_pago = 1 
+    AND fecha_vencimiento < CURRENT_DATE
+  `);
+
+  // 2. ACTUALIZACIÓN DE ESTADO DE VENTA:
+  // Si una venta tiene al menos una cuota en "Atrasado", la venta global 
+  // también debe marcarse como "Atrasado" (3), a menos que ya esté "Pagada" (2).
+  await db.query(`
+    UPDATE ventas 
+    SET id_estado_pago = 3 
+    WHERE id_venta IN (
+      SELECT id_venta FROM venta_cuotas WHERE id_estado_pago = 3
+    ) 
+    AND id_estado_pago != 2
+  `);
+
   const query = `
     SELECT 
       v.id_venta,
@@ -21,12 +43,15 @@ export const listarVentas = async () => {
       ) as detalles,
       (
         SELECT json_agg(json_build_object(
+          'id_cuota', vc.id,
           'numero_cuota', vc.numero_cuota,
-          'fecha_vencimiento', vc.fecha_vencimiento,
+          'fecha_vencimiento', TO_CHAR(vc.fecha_vencimiento, 'DD/MM/YYYY'),
           'monto_cuota', vc.monto_cuota,
-          'estado', vc.id_estado_pago
+          'id_estado', vc.id_estado_pago,
+          'estado', ep_c.nombre
         ) ORDER BY vc.fecha_vencimiento ASC) 
         FROM venta_cuotas vc 
+        JOIN estados_pago ep_c ON vc.id_estado_pago = ep_c.id 
         WHERE vc.id_venta = v.id_venta
       ) as cuotas
     FROM ventas v

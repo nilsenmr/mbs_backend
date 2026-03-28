@@ -8,10 +8,9 @@ const app = express();
 
 app.use(express.json());
 
-// Configuración de CORS
 app.use(cors({
-  origin: "http://localhost:5173", // el puerto donde corre Vite
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: "http://localhost:5173", 
+  methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
   credentials: true
 }));
 

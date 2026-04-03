@@ -11,7 +11,7 @@ import { actualizarClienteHandler } from "./controllers/actualizarCliente";
 import { registrarVentaHandler } from "./controllers/registrarVentaController"; 
 import { listarVentasHandler } from "./controllers/listarVentas";
 import { getMaestrosVentas } from "./controllers/maestroVentasController";
-import { pagarCuotaHandler } from './controllers/pagarCuotaController';
+import { pagarCuotaHandler, pagarVentaCompletaHandler } from './controllers/pagarCuotaController';
 
 const router = Router();
 
@@ -28,5 +28,6 @@ router.post("/registrar-venta", registrarVentaHandler);
 router.get("/listar-ventas", listarVentasHandler);
 router.get("/modalidad-pago", getMaestrosVentas);
 router.patch('/pagar-cuota/:id_cuota', pagarCuotaHandler);
+router.patch('/pagar-contado/:id_venta', pagarVentaCompletaHandler);
 
 export default router;

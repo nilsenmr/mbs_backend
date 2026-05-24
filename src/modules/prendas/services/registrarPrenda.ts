@@ -15,25 +15,49 @@ export const registrarPrenda = async ({
   color: string;
   precio: number;
 }) => {
+  // 1. Obtener el prefijo de la categoría (Ej: 'VE')
   const catRes = await db.query('SELECT codigo FROM categorias WHERE id = $1', [categoria_id]);
   if (catRes.rowCount === 0) throw 'Categoría inválida';
+  const rootPrefijo = catRes.rows[0].codigo.split('-')[0]; // Nos aseguramos de tener la raíz pura (Ej: 'VE')
+  
   let prefijo = catRes.rows[0].codigo;
 
+  // 2. Si viene estilo, armamos el prefijo específico (Ej: 'VE-CAS')
   if (estilo_id) {
     const estRes = await db.query('SELECT codigo FROM estilos WHERE id = $1', [estilo_id]);
     if (estRes.rowCount === 0) throw 'Estilo inválido';
     prefijo = `${prefijo}-${estRes.rows[0].codigo}`;
   }
 
-  const countRes = await db.query(`SELECT COUNT(*) FROM prendas WHERE codigo ILIKE $1`, [`${prefijo}-%`]);
-  const count = parseInt(countRes.rows[0].count, 10);
-  const correlativoFormateado = String(count + 1).padStart(4, '0');
-  const nuevoCodigo = `${prefijo}-${correlativoFormateado}`;
+  // 3. 🔥 SOLUCIÓN AL ERROR: Buscamos el número secuencial más alto global para esa raíz (Ej: 'VE-%')
+  // Ordenamos extrayendo numéricamente los últimos dígitos con regex para evitar problemas alfabéticos
+  const maxCodigoRes = await db.query(
+    `SELECT codigo FROM prendas 
+     WHERE codigo LIKE $1 
+     ORDER BY CAST(SUBSTRING(codigo FROM '-([0-9]+)$') AS INTEGER) DESC 
+     LIMIT 1`, 
+    [`${rootPrefijo}-%`]
+  );
+
+  let siguienteCorrelativo = 1;
+
+  if ((maxCodigoRes.rowCount ?? 0) > 0) {
+    const ultimoCodigo = maxCodigoRes.rows[0].codigo; // Ej: "VE-DEP-0042" o "VE-CAS-0042"
+    const partesCodigo = ultimoCodigo.split('-');
+    const ultimoNumeroStr = partesCodigo[partesCodigo.length - 1]; // Extrae "0042"
+    const ultimoNumero = parseInt(ultimoNumeroStr, 10);
+    
+    siguienteCorrelativo = ultimoNumero + 1; // Ahora saltará limpiamente al 43
+  }
+
+  const correlativoFormateado = String(siguienteCorrelativo).padStart(4, '0');
+  const nuevoCodigo = `${prefijo}-${correlativoFormateado}`; // Construye: VE-CAS-0043
   
   const baseRepo = "https://raw.githubusercontent.com/nilsenmr/imagenes/main/";
   const urlReferencial = `${baseRepo}${nuevoCodigo}.jpeg`;
   const urlReal = `${baseRepo}${nuevoCodigo}-real.jpeg`;
 
+  // 4. Insertar la nueva prenda de forma segura
   await db.query(
     `INSERT INTO prendas (
       categoria_id, estilo_id, estado_id, talla_id,
@@ -103,7 +127,7 @@ export const registrarPrendaDesdeExcel = async (datosPrenda: any) => {
       color = EXCLUDED.color,
       precio = EXCLUDED.precio,
       categoria_id = EXCLUDED.categoria_id,
-      estilo_id = EXCLUDED.estilo_id
+      style_id = EXCLUDED.estilo_id
     `,
     [
       categoria_id,

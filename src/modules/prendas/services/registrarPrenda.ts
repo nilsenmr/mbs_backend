@@ -17,6 +17,9 @@ export const registrarPrenda = async ({
 }) => {
   const catRes = await db.query('SELECT codigo FROM categorias WHERE id = $1', [categoria_id]);
   if (catRes.rowCount === 0) throw 'Categoría inválida';
+  
+  // Extraemos la raíz (Ej: si es 'VE-CAS' o simplemente 'VE', se queda con 'VE')
+  const rootPrefijo = catRes.rows[0].codigo.split('-')[0];
   let prefijo = catRes.rows[0].codigo;
 
   if (estilo_id) {
@@ -25,9 +28,28 @@ export const registrarPrenda = async ({
     prefijo = `${prefijo}-${estRes.rows[0].codigo}`;
   }
 
-  const countRes = await db.query(`SELECT COUNT(*) FROM prendas WHERE codigo ILIKE $1`, [`${prefijo}-%`]);
-  const count = parseInt(countRes.rows[0].count, 10);
-  const correlativoFormateado = String(count + 1).padStart(4, '0');
+  // 🔥 NUEVO AJUSTE: Buscamos el código con el número más alto real de toda la marca raíz (Ej: 'VE-%')
+  // Ordenamos extrayendo los dígitos finales como entero para saltar baches del Excel
+  const maxCodigoRes = await db.query(
+    `SELECT codigo FROM prendas 
+     WHERE codigo LIKE $1 
+     ORDER BY CAST(SUBSTRING(codigo FROM '-([0-9]+)$') AS INTEGER) DESC 
+     LIMIT 1`, 
+    [`${rootPrefijo}-%`]
+  );
+
+  let siguienteCorrelativo = 1;
+
+  if ((maxCodigoRes.rowCount ?? 0) > 0) {
+    const ultimoCodigo = maxCodigoRes.rows[0].codigo; // Ej: "VE-DEP-0042" o "VE-CAS-0042"
+    const partesCodigo = ultimoCodigo.split('-');
+    const ultimoNumeroStr = partesCodigo[partesCodigo.length - 1]; // Extrae "0042"
+    const ultimoNumero = parseInt(ultimoNumeroStr, 10);
+    
+    siguienteCorrelativo = ultimoNumero + 1; // Hará el salto correcto a 43
+  }
+
+  const correlativoFormateado = String(siguienteCorrelativo).padStart(4, '0');
   const nuevoCodigo = `${prefijo}-${correlativoFormateado}`;
   
   const baseRepo = "https://raw.githubusercontent.com/nilsenmr/imagenes/main/";
@@ -56,6 +78,7 @@ export const registrarPrenda = async ({
   return { mensaje: 'Prenda registrada', codigo: nuevoCodigo };
 };
 
+// 🌟 ESTA FUNCIÓN SE MANTIENE INTACTA, SIN CAMBIOS NI DAÑOS
 export const registrarPrendaDesdeExcel = async (datosPrenda: any) => {
   const { CODIGO, TALLA, COLOR, ESTATUS, PRECIO } = datosPrenda;
 

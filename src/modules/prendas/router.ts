@@ -12,9 +12,12 @@ import { registrarVentaHandler } from "./controllers/registrarVentaController";
 import { listarVentasHandler } from "./controllers/listarVentas";
 import { getMaestrosVentas } from "./controllers/maestroVentasController";
 import { pagarCuotaHandler, pagarVentaCompletaHandler } from './controllers/pagarCuotaController';
-import {publicarCatalogoHandler, subirImagenesHandler} from './controllers/sistemaController';
+import {publicarCatalogoHandler, subirImagenesHandler, guardarImagenLocalController} from './controllers/sistemaController';
+import multer from 'multer';
+
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.get("/listar-prendas", listarPrendasHandler);
 router.post("/registrar-prenda", registrarPrendaHandler);
@@ -32,6 +35,7 @@ router.patch('/pagar-cuota/:id_cuota', pagarCuotaHandler);
 router.patch('/pagar-contado/:id_venta', pagarVentaCompletaHandler);
 router.post("/publicar-catalogo", publicarCatalogoHandler);
 router.post("/subir-imagenes", subirImagenesHandler);
+router.post('/guardar-imagen-local', upload.single('imagen'), guardarImagenLocalController);
 
 
 export default router;

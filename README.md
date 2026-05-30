@@ -1,3 +1,214 @@
+# 📑 Especificación Técnica de la API - MSB SHOP
+
+Todos los endpoints detallados a continuación tienen como prefijo base la ruta: `http://localhost:3001/api/prendas`
+
+---
+
+## 🧭 Catálogo General de Endpoints
+
+| Módulo | Método | Endpoint | Descripción | Requiere Payload (Entrada) | Tipo de Respuesta (Salida) |
+| :--- | :---: | :--- | :--- | :---: | :---: |
+| **Prendas** | `GET` | `/listar-prendas` | Recupera el inventario completo con su conteo total. | No | `JSON (Objeto)` |
+| **Prendas** | `POST` | `/registrar-prenda` | Inserta una nueva prenda al inventario local. | Sí | `JSON (Objeto)` |
+| **Prendas** | `POST` | `/actualizar-prenda` | Modifica datos puntuales de una prenda (Precio/Color). | Sí | `JSON (Objeto)` |
+| **Prendas** | `POST` | `/masivo` | Carga masiva de prendas mediante lotes de datos. | Sí | `JSON (Objeto)` |
+| **Clientes** | `GET` | `/listar-clientes` | Obtiene el padrón de clientes de la tienda. | No | `JSON (Arreglo)` |
+| **Clientes** | `POST` | `/registrar-cliente` | Registra un nuevo cliente en el sistema. | Sí | `JSON (Objeto)` |
+| **Clientes** | `POST` | `/actualizar-cliente` | Modifica la información de un cliente existente. | Sí | `JSON (Objeto)` |
+| **Ventas** | `GET` | `/listar-ventas` | Retorna el histórico de ventas (Créditos y Contados). | No | `JSON (Arreglo)` |
+| **Ventas** | `POST` | `/registrar-venta` | Procesa una nueva venta calculando cuotas si aplica. | Sí | `JSON (Objeto)` |
+| **Ventas** | `PATCH` | `/pagar-cuota/:id_cuota` | Registra el pago y amortización de una cuota específica. | No | `JSON (Objeto)` |
+| **Ventas** | `PATCH` | `/pagar-contado/:id_venta` | Liquida el saldo de una venta totalizada bajo Contado. | No | `JSON (Objeto)` |
+| **Sistema** | `POST` | `/guardar-imagen-local` | Procesa y guarda un binario en `C:\wamp64\www\imagenes`. | Sí (`Multipart`) | `JSON (Objeto)` |
+| **Sistema** | `POST` | `/subir-imagenes` | Dispara `publicar_imagenes.sh` para hacer Git Push de fotos. | No | `JSON (Objeto)` |
+| **Sistema** | `POST` | `/publicar-catalogo` | Dispara `publicar.sh` para exportar JSON y actualizar Web. | No | `JSON (Objeto)` |
+| **Maestros** | `GET` | `/maestros-prendas` | Retorna listados dinámicos (Categorías, Tallas, Estados). | No | `JSON (Objeto)` |
+| **Maestros** | `GET` | `/maestros-clientes` | Retorna los estados paramétricos de los clientes. | No | `JSON (Objeto)` |
+| **Maestros** | `GET` | `/modalidad-pago` | Retorna los tipos de financiamiento de ventas. | No | `JSON (Objeto)` |
+
+---
+
+## 📦 Estructuras JSON de Entrada y Salida (Payloads)
+
+### 1. Módulo de Prendas e Inventario
+
+#### 📋 Listar Prendas (`GET /listar-prendas`)
+* **Entrada:** N/A (No requiere Body).
+* **Salida (200 OK):**
+```json
+{
+  "total": 3,
+  "registros": [
+    {
+      "id": 1,
+      "codigo": "BL-CASUAL-1",
+      "color": "Negro",
+      "precio": "59.99",
+      "imagen_real": "[https://mi-bucket.com/real.jpg](https://mi-bucket.com/real.jpg)",
+      "imagen_referencial": "[https://mi-bucket.com/ref.jpg](https://mi-bucket.com/ref.jpg)",
+      "categoria": "Blusas",
+      "estilo": "Casual",
+      "estado": "DISPONIBLE",
+      "talla": "L"
+    }
+  ]
+}
+```
+
+#### Registrar Prenda** (POST /registrar-prenda)
+* **Entrada (Body JSON)**
+```json
+{
+  "categoria_id": 2,
+  "estado_id": 1,
+  "talla_id": 3,
+  "color": "Fucsia",
+  "precio": 45.00,
+  "imagen_real": "[https://images.msb.shop/PRD-102.jpeg](https://images.msb.shop/PRD-102.jpeg)",
+  "imagen_referencial": ""
+}
+```
+
+* **Salida (201 Created):**
+```json
+{
+  "success": true,
+  "mensaje": "Prenda registrada exitosamente.",
+  "id_prenda": 102
+}
+
+```
+
+#### Actualizar Prenda** (POST /actualizar-prenda)
+* **Entrada (Body JSON)**
+```json
+{
+  "id": 3,
+  "color": "Azul Marino",
+  "precio": 49.99
+}
+```
+* **Salida (200 OK):**
+```json
+{
+  "success": true,
+  "mensaje": "Prenda actualizada correctamente."
+}
+```
+
+### 2.  Módulo de Clientes
+#### Listar Clientes** (GET /listar-clientes)
+* **Entrada: N/A**
+* **Salida (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "nombre": "NILSEN MARTINEZ",
+    "apellido": null,
+    "telefono": "04241987215",
+    "estado": "ACTIVO",
+    "id_estado": 1
+  }
+]
+```
+
+### 3.  Módulo de Ventas y Finanzas
+#### Registrar Venta** (POST /registrar-venta)
+* **Entrada (Body JSON):**
+```json
+{
+  "id_cliente": 1,
+  "id_modalidad_pago": 2, 
+  "monto_total": 120.00,
+  "cantidad_cuotas": 4,
+  "detalles": [
+    { "id_prenda": 1, "precio_venta": 60.00 },
+    { "id_prenda": 2, "precio_venta": 60.00 }
+  ]
+}
+```
+* **Salida (201 Created):**
+```json
+{
+  "success": true,
+  "mensaje": "Venta procesada con éxito.",
+  "id_venta": 45,
+  "cuotas_generadas": 4
+}
+```
+
+#### Registrar Venta** (POST /registrar-venta)
+* **Entrada:** Parámetro en URL (id_cuota). No requiere Body.
+* **Salida (200 OK):**
+```json
+{
+  "success": true,
+  "mensaje": "Pago de cuota registrado. Saldo amortizado correctamente.",
+  "saldo_restante_venta": 60.00
+}
+```
+### 4.  Módulo de Mantenimiento y Automatización del Sistema
+#### Carga Rápida de Imagen al Disco (POST /guardar-imagen-local)**
+* **Entrada: Requiere cabecera multipart/form-data.
+    - Campo codigoPrenda (String): Código identificador (Ej: VEST-01).
+    - Campo imagen (Binary): Archivo de la fotografía.
+
+* **Salida (200 OK):**
+```json
+{
+  "success": true,
+  "mensaje": "Imagen VEST-01.jpeg guardada con éxito en la carpeta local."
+}
+```
+
+#### Sincronizar Galería de Fotos (POST /subir-imagenes)**
+* **Entrada: N/A**
+* **Salida (200 OK):**
+```json
+{
+  "success": true,
+  "mensaje": "Script ejecutar_imagenes.sh finalizado. Repositorio de GitHub actualizado con éxito."
+}
+```
+
+#### Publicar Cambios de la Tienda (POST /publicar-catalogo)**
+* **Entrada: N/A**
+* **Salida (200 OK):**
+```json
+{
+  "success": true,
+  "mensaje": "Catálogo exportado a JSON. Repositorios público y frontend sincronizados en producción."
+}
+```
+### 5.  Módulo de Datos Maestros (GET /maestros-prendas)
+* **Entrada: N/A**
+* **Salida (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "categorias": [
+      { "value": 1, "label": "Vestido" },
+      { "value": 2, "label": "Blusa" }
+    ],
+    "estilos": [
+      { "value": 1, "label": "Casual" },
+      { "value": 2, "label": "Formal" }
+    ],
+    "estados": [
+      { "value": 1, "label": "DISPONIBLE" },
+      { "value": 3, "label": "VENDIDA" }
+    ],
+    "tallas": [
+      { "value": 2, "label": "S" },
+      { "value": 3, "label": "M" }
+    ]
+  }
+}
+```
+
+---------------------------------------------------------------------------------------------------------------------------------
 ## 🛠️ INSTALACIÓN Y CONFIGURACIÓN DE POSTGRESQL
 
 Este paso instala PostgreSQL, configura el acceso remoto para la red local y establece la contraseña del usuario `postgres`.
@@ -63,65 +274,9 @@ EJEMPLO .ENV
 PORT=3001
 DB_HOST=localhost
 DB_USER=postgres
-DB_PASSWORD=tu_clave
-DB_NAME=tu_base
+DB_PASSWORD=postgres
+DB_NAME=postgres
 DB_PORT=5432
-
-## PROBAR BACKEND MANUALMENTE
-```
-npx ts-node src/index.ts
-```
-
-## CREAR SCRIPT DE ARRANQUE AUTOMÁTICO
-```
-nano arrancar_backend.sh
-```
-
-## CONTENIDO
-#!/bin/bash
-
-echo "Iniciando backend en bucle infinito..."
-
-while true; do
-    echo "[`date '+%Y-%m-%d %H:%M:%S'`] Ejecutando backend..."
-    npx ts-node src/index.ts
-    echo "[`date '+%Y-%m-%d %H:%M:%S'`] El backend se detuvo. Reiniciando en 5 segundos..."
-    sleep 5
-done
-
-## DAR PERMISOS DE EJECUCION
-```
-chmod +x arrancar_backend.sh
-```
-
-## EJECUTAR EN SEGUNDO PLANO CON NOHUP
-```
-nohup ./arrancar_backend.sh > backend.log 2>&1 &
-```
-
-## VERIFICAR LOGS EN TIEMPO REAL
-```
-nohup ./arrancar_backend.sh > backend.log 2>&1 &
-```
-
-## VERIFICAR SI EL BACKEND ESTÁ CORRIENDO
-```
-ps aux | grep ts-node
-```
-
-## DETERNER BACKEND MANUALMENTE
-```
-pkill -f ts-node
-```
-
-## REINICIAR BACKEND MANUALMENTE
-```
-nohup ./arrancar_backend.sh > backend.log 2>&1 &
-```
-
-## VALIDAR DESDE EL NAVEGADOR O POSTMAN:
-
-[http://192.168.0.169:3001/api/prendas/registrar-prenda]()
 
 
 
@@ -130,417 +285,6 @@ nohup ./arrancar_backend.sh > backend.log 2>&1 &
 Esta guía permite ejecutar el backend de MSB SHOP en segundo plano, con reinicio automático y monitoreo persistente usando PM2.
 
 ---
-
-## ✅ Requisitos Previos
-
-Asegúrate de tener instalado:
-
-- Node.js (v18+ recomendado)
-- npm
-- PM2
-
-Instalación de PM2:
-
-```
-sudo npm install -g pm2
-```
-
-### 🚀 Levantar el Backend con PM2
-Desde la raíz del proyecto backend:
-
-```
-pm2 start npm --name msb-backend -- start
-```
-
-Esto ejecuta el script npm start como proceso persistente llamado msb-backend.
-
-
-### 💾 Guardar Configuración para Reinicio Automático
-
-```
-pm2 save
-```
-
-### 🔁 Habilitar Reinicio al Arrancar el Sistema
-```
-pm2 startup
-```
-Este comando mostrará una línea como esta:
-
-```
-sudo env PATH=$PATH:/home/tu_usuario/.nvm/versions/node/v18.x/bin pm2 startup systemd -u tu_usuario --hp /home/tu_usuario
-```
-Ejecuta esa línea tal cual para registrar el servicio.
-
-## 🛠️ Comandos Útiles de PM2
-
-|Acción                        | Comando                    |
-|------------------------------|----------------------------|
-| Ver procesos activos         | `pm2 list`                |
-| Ver logs del backend         | `pm2 logs msb-backend`    |
-| Monitorear en tiempo real    | `pm2 monit`               |
-| Reiniciar el backend         | `pm2 restart msb-backend` |
-| Detener el backend           | `pm2 stop msb-backend`    |
-| Eliminar del monitoreo       | `pm2 delete msb-backend`  |
-
-## 📦 Endpoints del Backend MSB
-Una vez levantado el backend, tendrás disponibles los siguientes endpoints bajo el prefijo ```/api/prendas```:
-
-➕ Registrar prenda
-```
-POST /api/prendas/registrar-prenda
-```
-Body esperado:
-```
-{
-  "categoria_id": 1,
-  "estado_id": 1,
-  "talla_id": 2,
-  "color": "Negro",
-  "precio": 59.99,
-  "imagen_real": "https://mi-bucket.com/real.jpg",
-  "imagen_referencial": "https://mi-bucket.com/ref.jpg"
-}
-
-```
-
-✏️ Actualizar prenda
-```
-POST /api/prendas/actualizar-prenda
-```
-Body esperado:
-```
-{
-  "id": 3,
-  "color": "Azul",
-  "precio": 49.99
-}
-```
-
-📋 Listar prendas con total
-```
-GET /api/prendas/listar-prendas
-```
-Respuesta:
-```
-{
-  "total": 3,
-  "registros": [
-    {
-      "id": 3,
-      "codigo": "ST-FORMAL-1",
-      "color": "Negro",
-      "precio": "59.99",
-      "imagen_real": "https://mi-bucket.com/real.jpg",
-      "imagen_referencial": "https://mi-bucket.com/ref.jpg",
-      "categoria": "Suéteres",
-      "estilo": "Formal",
-      "estado": "DISPONIBLE",
-      "talla": "M"
-    },
-    {
-      "id": 2,
-      "codigo": "BL-CASUAL-2",
-      "color": "Negro",
-      "precio": "59.99",
-      "imagen_real": "https://mi-bucket.com/real.jpg",
-      "imagen_referencial": "https://mi-bucket.com/ref.jpg",
-      "categoria": "Blusas",
-      "estilo": "Casual",
-      "estado": "DISPONIBLE",
-      "talla": "S"
-    },
-    {
-      "id": 1,
-      "codigo": "BL-CASUAL-1",
-      "color": "Negro",
-      "precio": "59.99",
-      "imagen_real": "https://mi-bucket.com/real.jpg",
-      "imagen_referencial": "https://mi-bucket.com/ref.jpg",
-      "categoria": "Blusas",
-      "estilo": "Casual",
-      "estado": "DISPONIBLE",
-      "talla": "L"
-    }
-  ]
-}
-```
-
-📋 Listar clientes
-```
-GET /api/prendas/listar-clientes
-```
-Respuesta:
-```
-[
-    {
-        "id": 1,
-        "nombre": "NILSEN MARTINEZ",
-        "apellido": null,
-        "telefono": "04241987215",
-        "estado": "ACTIVO",
-        "id_estado": 1
-    },
-    {
-        "id": 2,
-        "nombre": "NORCARLY",
-        "apellido": null,
-        "telefono": null,
-        "estado": "ACTIVO",
-        "id_estado": 1
-    },
-    {
-        "id": 3,
-        "nombre": "CLARIBEL",
-        "apellido": null,
-        "telefono": null,
-        "estado": "ACTIVO",
-        "id_estado": 1
-    },
-    {
-        "id": 4,
-        "nombre": "YOGLEIDYS",
-        "apellido": null,
-        "telefono": null,
-        "estado": "ACTIVO",
-        "id_estado": 1
-    },
-    {
-        "id": 5,
-        "nombre": "KEILA",
-        "apellido": null,
-        "telefono": null,
-        "estado": "ACTIVO",
-        "id_estado": 1
-    },
-    {
-        "id": 6,
-        "nombre": "KISBEL",
-        "apellido": null,
-        "telefono": null,
-        "estado": "ACTIVO",
-        "id_estado": 1
-    },
-    {
-        "id": 7,
-        "nombre": "MAYELA",
-        "apellido": null,
-        "telefono": null,
-        "estado": "ACTIVO",
-        "id_estado": 1
-    },
-    {
-        "id": 8,
-        "nombre": "NAYIBET",
-        "apellido": null,
-        "telefono": null,
-        "estado": "ACTIVO",
-        "id_estado": 1
-    },
-    {
-        "id": 9,
-        "nombre": "GREICY",
-        "apellido": null,
-        "telefono": null,
-        "estado": "ACTIVO",
-        "id_estado": 1
-    }
-]
-```
-💻 Listar datos maestros
-```
-GET /api/prendas/maestros-prendas
-```
-Respuesta:
-```
-{
-    "success": true,
-    "data": {
-        "categorias": [
-            {
-                "value": 8,
-                "label": "Blazer"
-            },
-            {
-                "value": 2,
-                "label": "Blusa"
-            },
-            {
-                "value": 10,
-                "label": "Body"
-            },
-            {
-                "value": 7,
-                "label": "Braga"
-            },
-            {
-                "value": 9,
-                "label": "Chaqueta"
-            },
-            {
-                "value": 4,
-                "label": "Conjunto"
-            },
-            {
-                "value": 14,
-                "label": "Falda"
-            },
-            {
-                "value": 13,
-                "label": "Licra"
-            },
-            {
-                "value": 5,
-                "label": "Mono"
-            },
-            {
-                "value": 15,
-                "label": "Short"
-            },
-            {
-                "value": 11,
-                "label": "Sudadera"
-            },
-            {
-                "value": 3,
-                "label": "Suéter"
-            },
-            {
-                "value": 12,
-                "label": "Top"
-            },
-            {
-                "value": 6,
-                "label": "Traje de baño"
-            },
-            {
-                "value": 1,
-                "label": "Vestido"
-            }
-        ],
-        "estilos": [
-            {
-                "value": 4,
-                "label": "2 pz"
-            },
-            {
-                "value": 1,
-                "label": "Casual"
-            },
-            {
-                "value": 3,
-                "label": "Deportivo"
-            },
-            {
-                "value": 5,
-                "label": "Entero"
-            },
-            {
-                "value": 2,
-                "label": "Formal"
-            }
-        ],
-        "estados": [
-            {
-                "value": 2,
-                "label": "APARTADA"
-            },
-            {
-                "value": 1,
-                "label": "DISPONIBLE"
-            },
-            {
-                "value": 3,
-                "label": "VENDIDA"
-            }
-        ],
-        "tallas": [
-            {
-                "value": 7,
-                "label": "3XL"
-            },
-            {
-                "value": 8,
-                "label": "4XL"
-            },
-            {
-                "value": 4,
-                "label": "L"
-            },
-            {
-                "value": 3,
-                "label": "M"
-            },
-            {
-                "value": 2,
-                "label": "S"
-            },
-            {
-                "value": 9,
-                "label": "U"
-            },
-            {
-                "value": 5,
-                "label": "XL"
-            },
-            {
-                "value": 1,
-                "label": "XS"
-            },
-            {
-                "value": 6,
-                "label": "XXL"
-            }
-        ]
-    }
-}
-```
-
-## 🔁 Gestión de procesos con PM2
-Esta guía documenta cómo administrar el backend msb-backend usando PM2, empezando por listar y validar duplicados, y luego aplicar acciones de eliminación, reinicio, guardado y monitoreo.
-
-📋 Listar procesos activos
-Antes de cualquier acción, valida qué procesos están corriendo:
-
-```
-pm2 list
-```
-Si ves más de una instancia con el mismo nombre (msb-backend), el proceso está duplicado.
-
-🧹 Eliminar procesos duplicados
-Para matar todas las instancias del proceso con nombre msb-backend:
-
-```
-pm2 delete msb-backend
-Esto elimina cualquier ejecución previa y limpia el entorno.
-```
-
-🚀 Iniciar el backend nuevamente
-Desde la raíz del proyecto:
-
-```
-pm2 start npm --name msb-backend -- start
-```
-Este comando levanta el backend usando el script start de tu package.json y lo registra bajo el nombre msb-backend.
-
-💾 Guardar configuración para reinicio automático
-```
-pm2 save
-```
-Guarda el estado actual de los procesos para que se reinicien automáticamente al arrancar el sistema.
-
-🔁 Reiniciar el backend manualmente
-```
-pm2 restart msb-backend
-```
-Reinicia el proceso sin detener el monitoreo ni perder el historial.
-
-🔍 Ver logs en tiempo real
-```
-pm2 logs msb-backend
-```
-
-
 
 
 # Lo que tenemos "en cola" para el Bloque de Seguridad:

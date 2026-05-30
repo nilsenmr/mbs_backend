@@ -12,6 +12,7 @@ import { registrarVentaHandler } from "./controllers/registrarVentaController";
 import { listarVentasHandler } from "./controllers/listarVentas";
 import { getMaestrosVentas } from "./controllers/maestroVentasController";
 import { pagarCuotaHandler, pagarVentaCompletaHandler } from './controllers/pagarCuotaController';
+import {publicarCatalogoHandler, subirImagenesHandler} from './controllers/sistemaController';
 
 const router = Router();
 
@@ -29,5 +30,8 @@ router.get("/listar-ventas", listarVentasHandler);
 router.get("/modalidad-pago", getMaestrosVentas);
 router.patch('/pagar-cuota/:id_cuota', pagarCuotaHandler);
 router.patch('/pagar-contado/:id_venta', pagarVentaCompletaHandler);
+router.post("/publicar-catalogo", publicarCatalogoHandler);
+router.post("/subir-imagenes", subirImagenesHandler);
+
 
 export default router;

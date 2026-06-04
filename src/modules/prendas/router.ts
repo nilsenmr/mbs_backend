@@ -8,7 +8,7 @@ import { registrarMasivoHandler } from "./controllers/registarMasivo";
 import { listarClientesHandler } from "./controllers/listarClientes";
 import { registrarClienteHandler } from "./controllers/registrarCliente";
 import { actualizarClienteHandler } from "./controllers/actualizarCliente";
-import { registrarVentaHandler } from "./controllers/registrarVentaController"; 
+import { registrarVentaHandler, actualizarFechaCuotaHandler } from "./controllers/registrarVentaController"; 
 import { listarVentasHandler } from "./controllers/listarVentas";
 import { getMaestrosVentas } from "./controllers/maestroVentasController";
 import { pagarCuotaHandler, pagarVentaCompletaHandler } from './controllers/pagarCuotaController';
@@ -36,6 +36,8 @@ router.patch('/pagar-contado/:id_venta', pagarVentaCompletaHandler);
 router.post("/publicar-catalogo", publicarCatalogoHandler);
 router.post("/subir-imagenes", subirImagenesHandler);
 router.post('/guardar-imagen-local', upload.single('imagen'), guardarImagenLocalController);
+router.post('/registrar', registrarVentaHandler);
+router.patch('/actualizar-fecha-cuota/:idCuota', actualizarFechaCuotaHandler);
 
 
 export default router;

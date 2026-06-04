@@ -3,6 +3,7 @@ import { db } from '../../../config/db';
 export const registrarVenta = async (datos: any) => {
   const { cliente_id, monto_total, id_modalidad, detalles, cuotas } = datos;
 
+  
   const fechaHoy = new Date().toLocaleDateString('sv-SE').split('-');
   const prefijoFecha = `${fechaHoy[2]}${fechaHoy[1]}`;
   const prefijoVenta = `V${prefijoFecha}`;
@@ -39,7 +40,7 @@ export const registrarVenta = async (datos: any) => {
       );
     }
 
-    if (cuotas && cuotas.length > 0) {
+    if (cuotas && Array.isArray(cuotas)) {
       for (const cuota of cuotas) {
         await client.query(
           `INSERT INTO venta_cuotas (id_venta, numero_cuota, fecha_vencimiento, monto_cuota, id_estado_pago) 
@@ -57,5 +58,26 @@ export const registrarVenta = async (datos: any) => {
     throw error;
   } finally {
     client.release();
+  }
+
+};
+
+export const actualizarFechaCuota = async (id_cuota: number | string, nueva_fecha: string) => {
+  try {
+    const result = await db.query(
+      `UPDATE venta_cuotas 
+       SET fecha_vencimiento = $1 
+       WHERE id = $2 AND id_estado_pago != 2`, 
+      [nueva_fecha, id_cuota]
+    );
+
+    if (result.rowCount === 0) {
+      throw new Error("La cuota no existe o ya ha sido pagada.");
+    }
+
+    return { mensaje: 'Fecha de cuota actualizada correctamente' };
+  } catch (error) {
+    console.error("Error al actualizar fecha de cuota:", error);
+    throw error;
   }
 };

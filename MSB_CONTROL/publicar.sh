@@ -13,14 +13,14 @@ npm run exportar || { echo "❌ Error en exportar"; exit 1; }
 echo "[+] Actualizando Repo Frontend..."
 cd /c/wamp64/www/mbs_frontend || { echo "❌ Error: No se encontró la carpeta mbs_frontend"; exit 1; }
 git add .
-git commit -m "fix: update prendas.json $(date +'%Y-%m-%d %H:%M:%S')"
+git commit -m "fix: update prendas.json y ventas.json $(date +'%Y-%m-%d %H:%M:%S')"
 git push origin main
 
 # 3. Git Catalogo Publico
 echo "[+] Actualizando Catalogo Publico..."
 cd /c/wamp64/www/msb-catalogo-publico || { echo "❌ Error: No se encontró la carpeta msb-catalogo-publico"; exit 1; }
 git add .
-git commit -m "fix: update prendas.json $(date +'%Y-%m-%d %H:%M:%S')"
+git commit -m "fix: update prendas.json y ventas.json $(date +'%Y-%m-%d %H:%M:%S')"
 git push origin main
 
 echo "======================================================="

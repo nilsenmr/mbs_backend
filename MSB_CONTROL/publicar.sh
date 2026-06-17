@@ -8,6 +8,8 @@ echo "======================================================="
 echo "[+] Generando JSON..."
 cd /c/wamp64/www/mbs_backend || { echo "❌ Error: No se encontró la carpeta mbs_backend"; exit 1; }
 npm run exportar || { echo "❌ Error en exportar"; exit 1; }
+git commit -m "fix: update prendas.json y ventas.json $(date +'%Y-%m-%d %H:%M:%S')"
+git push origin main
 
 # 2. Git Frontend
 echo "[+] Actualizando Repo Frontend..."

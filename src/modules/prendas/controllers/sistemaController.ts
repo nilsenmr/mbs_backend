@@ -44,30 +44,30 @@ export const guardarImagenLocalController = async (req: Request, res: Response) 
       return res.status(400).json({ mensaje: "No se ha arrastrado ninguna imagen." });
     }
 
-    
-    const carpetaDestino = "C:\\wamp64\\www\\imagenes";
-    
-    
-    if (!fs.existsSync(carpetaDestino)) {
-      fs.mkdirSync(carpetaDestino, { recursive: true });
-    }
+    const destinos = [
+      "C:\\wamp64\\www\\imagenes",
+      "C:\\wamp64\\www\\mbs_frontend\\public\\imagenes"
+    ];
 
-    
     const nombreArchivo = `${codigoPrenda.trim().toUpperCase()}.jpeg`;
-    const rutaCompleta = path.join(carpetaDestino, nombreArchivo);
 
-    
-    fs.writeFileSync(rutaCompleta, file.buffer);
-
-    console.log(`📸 Imagen guardada localmente: ${rutaCompleta}`);
+    destinos.forEach((carpeta) => {
+      if (!fs.existsSync(carpeta)) {
+        fs.mkdirSync(carpeta, { recursive: true });
+      }
+      
+      const rutaCompleta = path.join(carpeta, nombreArchivo);
+      fs.writeFileSync(rutaCompleta, file.buffer);
+      console.log(`Imagen guardada en: ${rutaCompleta}`);
+    });
 
     return res.json({
       success: true,
-      mensaje: `Imagen ${nombreArchivo} guardada con éxito en la carpeta local.`
+      mensaje: `Imagen ${nombreArchivo} guardada con éxito en ambas rutas.`
     });
 
   } catch (error: any) {
-    console.error("💥 Error al guardar imagen local:", error);
+    console.error("Error al guardar imagen local:", error);
     return res.status(500).json({
       mensaje: "Error interno al escribir el archivo en el servidor.",
       detalle: error.message

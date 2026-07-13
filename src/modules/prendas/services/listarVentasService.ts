@@ -1,9 +1,7 @@
 import { db } from '../../../config/db';
 
 export const listarVentas = async () => {
-  // 1. LÓGICA DE AUTO-ATRASO:
-  // Actualizamos a "Atrasado" (3) todas las cuotas que estén "Pendientes" (1)
-  // y cuya fecha de vencimiento sea menor a la fecha actual.
+
   await db.query(`
     UPDATE venta_cuotas 
     SET id_estado_pago = 3 
@@ -11,9 +9,6 @@ export const listarVentas = async () => {
     AND fecha_vencimiento < CURRENT_DATE
   `);
 
-  // 2. ACTUALIZACIÓN DE ESTADO DE VENTA:
-  // Si una venta tiene al menos una cuota en "Atrasado", la venta global 
-  // también debe marcarse como "Atrasado" (3), a menos que ya esté "Pagada" (2).
   await db.query(`
     UPDATE ventas 
     SET id_estado_pago = 3 
@@ -32,6 +27,7 @@ export const listarVentas = async () => {
       v.id_estado_pago,
       ep.nombre AS estado_pago,
       TO_CHAR(v.fecha_venta, 'DD/MM/YYYY') as fecha_venta,
+      c.id AS id_cliente,
       CONCAT(c.nombre, ' ', c.apellido) as cliente_nombre,
       (
         SELECT json_agg(json_build_object(

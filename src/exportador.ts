@@ -73,7 +73,27 @@ async function ejecutarExportacion() {
     const resPrendas = await pool.query(`SELECT p.codigo, p.precio, p.imagen_referencial as imagen, c.nombre as categoria, t.nombre as talla FROM prendas p JOIN categorias c ON p.categoria_id = c.id JOIN tallas t ON p.talla_id = t.id WHERE p.estado_id = 1;`);
     guardarJson('prendas.json', resPrendas.rows, carpetasDestinoJson);
 
-    const resVentas = await pool.query(`SELECT v.id_venta, v.monto_total, v.fecha_venta, CONCAT(c.nombre, ' ', c.apellido) as cliente_nombre, (SELECT json_agg(json_build_object('codigo', vd.codigo_prenda, 'precio', vd.precio_unitario)) FROM venta_detalles vd WHERE vd.id_venta = v.id_venta) as detalles, (SELECT json_agg(json_build_object('numero_cuota', vc.numero_cuota, 'fecha_vencimiento', TO_CHAR(vc.fecha_vencimiento, 'DD/MM/YYYY'), 'monto_cuota', vc.monto_cuota, 'estado', ep_c.nombre) ORDER BY vc.fecha_vencimiento ASC) FROM venta_cuotas vc JOIN estados_pago ep_c ON vc.id_estado_pago = ep_c.id WHERE vc.id_venta = v.id_venta) as cuotas FROM ventas v JOIN clientes c ON v.cliente_id = c.id WHERE v.id_estado_pago != 2 ORDER BY v.fecha_venta DESC;`);
+    const resVentas = await pool.query(`SELECT   
+          v.id_venta,
+          v.monto_total,
+          v.fecha_venta,
+          c.id as id_cliente,
+                        Concat(c.nombre, ' ', c.apellido) AS cliente_nombre,
+              (
+                      SELECT Json_agg(Json_build_object('codigo', vd.codigo_prenda, 'precio', vd.precio_unitario))
+                      FROM   venta_detalles vd
+                      WHERE  vd.id_venta = v.id_venta) AS detalles,
+              (
+                        SELECT   json_agg(Json_build_object('numero_cuota', vc.numero_cuota, 'fecha_vencimiento', To_char(vc.fecha_vencimiento, 'DD/MM/YYYY'), 'monto_cuota', vc.monto_cuota, 'estado', ep_c.nombre) order BY vc.fecha_vencimiento ASC)
+                        FROM     venta_cuotas vc
+                        JOIN     estados_pago ep_c
+                        ON       vc.id_estado_pago = ep_c.id
+                        WHERE    vc.id_venta = v.id_venta) AS cuotas
+      FROM     ventas v
+      JOIN     clientes c
+      ON       v.cliente_id = c.id
+      WHERE    v.id_estado_pago != 2
+      ORDER BY v.fecha_venta DESC;`);
     guardarJson('ventas.json', resVentas.rows, carpetasDestinoJson);
 
     // Subir a GitHub

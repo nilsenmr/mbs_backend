@@ -77,6 +77,7 @@ async function ejecutarExportacion() {
           v.id_venta,
           v.monto_total,
           v.fecha_venta,
+          v.obs,
           c.id as id_cliente,
                         Concat(c.nombre, ' ', c.apellido) AS cliente_nombre,
               (

@@ -25,6 +25,7 @@ export const listarVentas = async () => {
       v.id_modalidad,
       m.nombre AS modalidad,
       v.id_estado_pago,
+      v.obs,
       ep.nombre AS estado_pago,
       TO_CHAR(v.fecha_venta, 'DD/MM/YYYY') as fecha_venta,
       c.id AS id_cliente,

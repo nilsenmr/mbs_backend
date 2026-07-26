@@ -1,8 +1,8 @@
 import { db } from '../../../config/db';
 
 export const registrarVenta = async (datos: any) => {
-
-  const { cliente_id, monto_total, id_modalidad, detalles, cuotas, obs } = datos;
+  
+  const { cliente_id, monto_total, monto_descuento, id_modalidad, detalles, cuotas, obs } = datos;
 
   const fechaHoy = new Date().toLocaleDateString('sv-SE').split('-');
   const prefijoFecha = `${fechaHoy[2]}${fechaHoy[1]}`;
@@ -23,9 +23,17 @@ export const registrarVenta = async (datos: any) => {
 
     
     await client.query(
-      `INSERT INTO ventas (id_venta, cliente_id, monto_total, id_modalidad, id_estado_pago, obs) 
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [id_venta, cliente_id, monto_total, id_modalidad || 1, 1, obs || null]
+      `INSERT INTO ventas (id_venta, cliente_id, monto_total, monto_descuento, id_modalidad, id_estado_pago, obs) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        id_venta, 
+        cliente_id, 
+        monto_total, 
+        monto_descuento || null,
+        id_modalidad || 1, 
+        1, 
+        obs || null
+      ]
     );
 
     for (const item of detalles) {

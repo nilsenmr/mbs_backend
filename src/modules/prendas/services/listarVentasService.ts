@@ -22,6 +22,7 @@ export const listarVentas = async () => {
     SELECT 
       v.id_venta,
       v.monto_total,
+      v.monto_descuento,
       v.id_modalidad,
       m.nombre AS modalidad,
       v.id_estado_pago,

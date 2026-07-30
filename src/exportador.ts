@@ -70,7 +70,21 @@ async function ejecutarExportacion() {
     carpetasDestinoImg.forEach(destino => sincronizarImagenesLocales(carpetaOrigen, destino));
 
     // Exportar JSONs
-    const resPrendas = await pool.query(`SELECT p.codigo, p.precio, p.imagen_referencial as imagen, c.nombre as categoria, t.nombre as talla FROM prendas p JOIN categorias c ON p.categoria_id = c.id JOIN tallas t ON p.talla_id = t.id WHERE p.estado_id = 1;`);
+    // Exportar JSONs
+    const resPrendas = await pool.query(`
+      SELECT 
+        p.codigo, 
+        p.precio, 
+        p.imagen_referencial as imagen, 
+        c.nombre as categoria, 
+        t.nombre as talla,
+        p.created_at 
+      FROM prendas p 
+      JOIN categorias c ON p.categoria_id = c.id 
+      JOIN tallas t ON p.talla_id = t.id 
+      WHERE p.estado_id = 1 
+      ORDER BY p.created_at DESC;
+    `);
     guardarJson('prendas.json', resPrendas.rows, carpetasDestinoJson);
 
     const resVentas = await pool.query(`SELECT  

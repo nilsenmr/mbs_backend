@@ -8,7 +8,8 @@ export const listarPrendas = async () => {
       c.nombre AS categoria,
       e.nombre AS estilo,
       est.codigo AS estado,
-      t.nombre AS talla
+      t.nombre AS talla,
+      p.created_at
     FROM prendas p
     LEFT JOIN categorias c ON p.categoria_id = c.id
     LEFT JOIN estilos e ON p.estilo_id = e.id

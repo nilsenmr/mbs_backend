@@ -70,7 +70,6 @@ async function ejecutarExportacion() {
     carpetasDestinoImg.forEach(destino => sincronizarImagenesLocales(carpetaOrigen, destino));
 
     // Exportar JSONs
-    // Exportar JSONs
     const resPrendas = await pool.query(`
       SELECT 
         p.codigo, 
@@ -94,6 +93,7 @@ async function ejecutarExportacion() {
         v.fecha_venta,
         v.obs,
         c.id as id_cliente,
+        c.telefono,
                     Concat(c.nombre, ' ', c.apellido) AS cliente_nombre,
               (
                     SELECT Json_agg(Json_build_object('codigo', vd.codigo_prenda, 'precio', vd.precio_unitario))

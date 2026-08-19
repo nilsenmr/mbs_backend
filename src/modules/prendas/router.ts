@@ -12,7 +12,7 @@ import { registrarVentaHandler, actualizarFechaCuotaHandler } from "./controller
 import { listarVentasHandler } from "./controllers/listarVentas";
 import { getMaestrosVentas } from "./controllers/maestroVentasController";
 import { pagarCuotaHandler, pagarVentaCompletaHandler } from './controllers/pagarCuotaController';
-import {publicarCatalogoHandler, subirImagenesHandler, guardarImagenLocalController} from './controllers/sistemaController';
+import {publicarCatalogoHandler, subirImagenesHandler, guardarImagenLocalController, guardarImagenExtraController} from './controllers/sistemaController';
 import multer from 'multer';
 
 
@@ -36,6 +36,7 @@ router.patch('/pagar-contado/:id_venta', pagarVentaCompletaHandler);
 router.post("/publicar-catalogo", publicarCatalogoHandler);
 router.post("/subir-imagenes", subirImagenesHandler);
 router.post('/guardar-imagen-local', upload.single('imagen'), guardarImagenLocalController);
+router.post('/guardar-imagen-extra', upload.single('imagen'), guardarImagenExtraController);
 router.post('/registrar', registrarVentaHandler);
 router.patch('/actualizar-fecha-cuota/:idCuota', actualizarFechaCuotaHandler);
 

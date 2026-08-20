@@ -9,10 +9,16 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:5173", 
+  origin: ["http://localhost:5173", "http://192.168.0.190:5173"], 
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));
+
+// app.use(cors({
+//   origin: "http://localhost:5173", 
+//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+//   credentials: true
+// }));
 
 
 app.get('/api/test-rutas', (req, res) => {
@@ -37,7 +43,11 @@ app.get('/api/test-rutas', (req, res) => {
 
 app.use('/api/prendas', prendasRouter);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Backend corriendo en puerto ${PORT}`);
+const PORT = Number(process.env.PORT) || 3001;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Backend corriendo en http://0.0.0.0:${PORT}`);
 });
+// const PORT = process.env.PORT || 3001;
+// app.listen(PORT, () => {
+//   console.log(`Backend corriendo en puerto ${PORT}`);
+// });

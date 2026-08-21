@@ -72,7 +72,7 @@ async function ejecutarExportacion() {
     // 2. Exportar JSONs de prendas usando la misma consulta SQL de tu backend
     const resPrendas = await pool.query(`
       SELECT 
-        p.id, p.codigo, p.color, p.precio, 
+        p.id, p.codigo, p.color, p.precio, p.en_oferta,
         p.imagen_real, p.imagen_referencial,
         c.nombre AS categoria,
         e.nombre AS estilo,
@@ -111,6 +111,7 @@ async function ejecutarExportacion() {
       return {
         codigo: item.codigo,
         precio: item.precio,
+        en_oferta: item.en_oferta,
         imagen: imagenFinal,
         categoria: item.categoria,
         talla: item.talla,

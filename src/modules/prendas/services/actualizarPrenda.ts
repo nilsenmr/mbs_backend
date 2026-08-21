@@ -10,6 +10,7 @@ export const actualizarPrenda = async ({
   precio,
   imagen_real,
   imagen_referencial,
+  en_oferta, // <--- 1. Añadido aquí
   updated_by
 }: {
   prenda_id: number;
@@ -21,6 +22,7 @@ export const actualizarPrenda = async ({
   precio?: number;
   imagen_real?: string;
   imagen_referencial?: string;
+  en_oferta?: boolean; // <--- 1. Añadido aquí (asumiendo que es booleano)
   updated_by?: string;
 }) => {
   const prendaRes = await db.query(
@@ -35,6 +37,7 @@ export const actualizarPrenda = async ({
   const updateValues: any[] = [];
   let paramIndex = 1;
 
+  // ... (tus validaciones existentes)
   if (categoria_id !== undefined) {
     updateFields.push(`categoria_id = $${paramIndex++}`);
     updateValues.push(categoria_id);
@@ -67,6 +70,12 @@ export const actualizarPrenda = async ({
     updateFields.push(`imagen_referencial = $${paramIndex++}`);
     updateValues.push(imagen_referencial);
   }
+  
+  // 2. Lógica para el nuevo campo
+  if (en_oferta !== undefined) {
+    updateFields.push(`en_oferta = $${paramIndex++}`);
+    updateValues.push(en_oferta);
+  }
 
   // Campos de auditoría
   updateFields.push(`updated_by = $${paramIndex++}`);
@@ -75,8 +84,8 @@ export const actualizarPrenda = async ({
   updateFields.push(`updated_at = $${paramIndex++}`);
   updateValues.push(new Date());
 
-  if (updateFields.length === 0) {
-    throw new Error('No se proporcionaron campos para actualizar');
+  if (updateFields.length === 2) { // Ajustado: updated_by y updated_at siempre están presentes
+     throw new Error('No se proporcionaron campos para actualizar');
   }
 
   const updateQuery = `

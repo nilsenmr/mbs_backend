@@ -3,7 +3,7 @@ import { db } from "../../../config/db";
 export const listarPrendas = async () => {
   const res = await db.query(
     `SELECT 
-      p.id, p.codigo, p.color, p.precio, 
+      p.id, p.codigo, p.color, p.precio, p.en_oferta,
       p.imagen_real, p.imagen_referencial,
       c.nombre AS categoria,
       e.nombre AS estilo,

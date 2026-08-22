@@ -9,7 +9,11 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: ["http://localhost:5173", "http://192.168.0.190:5173"], 
+  origin: [
+    "http://localhost:5173", 
+    "http://192.168.0.190:5173",
+    "http://100.87.130.8:5173"
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));

@@ -12,9 +12,9 @@ import { registrarVentaHandler, actualizarFechaCuotaHandler } from "./controller
 import { listarVentasHandler } from "./controllers/listarVentas";
 import { getMaestrosVentas } from "./controllers/maestroVentasController";
 import { pagarCuotaHandler, pagarVentaCompletaHandler } from './controllers/pagarCuotaController';
-import {publicarCatalogoHandler, subirImagenesHandler, guardarImagenLocalController, guardarImagenExtraController} from './controllers/sistemaController';
+import { publicarCatalogoHandler, subirImagenesHandler, guardarImagenLocalController, guardarImagenExtraController } from './controllers/sistemaController';
+import { eliminarPrendaHandler, eliminarPrendaPorCodigoHandler } from './controllers/eliminarPrendaController';
 import multer from 'multer';
-
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -22,6 +22,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.get("/listar-prendas", listarPrendasHandler);
 router.post("/registrar-prenda", registrarPrendaHandler);
 router.post("/actualizar-prenda", actualizarPrendaHandler);
+
+router.delete("/eliminar-prenda/:id", eliminarPrendaHandler);
+router.delete("/eliminar-prenda/codigo/:codigo", eliminarPrendaPorCodigoHandler);
+
 router.post("/masivo", registrarMasivoHandler);
 router.post("/registrar-cliente", registrarClienteHandler);
 router.post("/actualizar-cliente", actualizarClienteHandler);
@@ -39,6 +43,5 @@ router.post('/guardar-imagen-local', upload.single('imagen'), guardarImagenLocal
 router.post('/guardar-imagen-extra', upload.single('imagen'), guardarImagenExtraController);
 router.post('/registrar', registrarVentaHandler);
 router.patch('/actualizar-fecha-cuota/:idCuota', actualizarFechaCuotaHandler);
-
 
 export default router;

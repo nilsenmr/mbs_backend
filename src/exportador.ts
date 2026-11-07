@@ -122,7 +122,7 @@ async function ejecutarExportacion() {
 
     guardarJson('prendas.json', prendasMapeadas, carpetasDestinoJson);
 
-    // 3. Exportar JSONs de ventas
+    // 3. Exportar JSONs de ventas (Actualizado con monto_original_cuota)
     const resVentas = await pool.query(`SELECT  
         v.id_venta,
         v.monto_total,
@@ -138,7 +138,13 @@ async function ejecutarExportacion() {
           WHERE  vd.id_venta = v.id_venta
         ) AS detalles,
         (
-          SELECT json_agg(Json_build_object('numero_cuota', vc.numero_cuota, 'fecha_vencimiento', To_char(vc.fecha_vencimiento, 'DD/MM/YYYY'), 'monto_cuota', vc.monto_cuota, 'estado', ep_c.nombre) ORDER BY vc.fecha_vencimiento ASC)
+          SELECT json_agg(Json_build_object(
+            'numero_cuota', vc.numero_cuota, 
+            'fecha_vencimiento', To_char(vc.fecha_vencimiento, 'DD/MM/YYYY'), 
+            'monto_cuota', vc.monto_cuota, 
+            'monto_original_cuota', vc.monto_original_cuota, 
+            'estado', ep_c.nombre
+          ) ORDER BY vc.fecha_vencimiento ASC)
           FROM   venta_cuotas vc
           JOIN   estados_pago ep_c ON vc.id_estado_pago = ep_c.id
           WHERE  vc.id_venta = v.id_venta

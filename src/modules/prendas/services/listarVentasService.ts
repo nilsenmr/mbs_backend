@@ -45,6 +45,7 @@ export const listarVentas = async () => {
           'numero_cuota', vc.numero_cuota,
           'fecha_vencimiento', TO_CHAR(vc.fecha_vencimiento, 'DD/MM/YYYY'),
           'monto_cuota', vc.monto_cuota,
+          'monto_original_cuota', vc.monto_original_cuota,
           'id_estado', vc.id_estado_pago,
           'estado', ep_c.nombre
         ) ORDER BY vc.fecha_vencimiento ASC) 

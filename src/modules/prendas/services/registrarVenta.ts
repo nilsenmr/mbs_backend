@@ -52,9 +52,15 @@ export const registrarVenta = async (datos: any) => {
     if (cuotas && Array.isArray(cuotas)) {
       for (const cuota of cuotas) {
         await client.query(
-          `INSERT INTO venta_cuotas (id_venta, numero_cuota, fecha_vencimiento, monto_cuota, id_estado_pago) 
-           VALUES ($1, $2, $3, $4, $5)`,
-          [id_venta, cuota.numero_cuota, cuota.fecha_vencimiento, cuota.monto_cuota, 1]
+          `INSERT INTO venta_cuotas (id_venta, numero_cuota, fecha_vencimiento, monto_cuota, monto_original_cuota, id_estado_pago) 
+           VALUES ($1, $2, $3, $4, $4, $5)`,
+          [
+            id_venta, 
+            cuota.numero_cuota, 
+            cuota.fecha_vencimiento, 
+            cuota.monto_cuota,
+            1                  
+          ]
         );
       }
     }

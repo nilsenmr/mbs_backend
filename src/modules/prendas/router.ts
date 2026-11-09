@@ -14,6 +14,7 @@ import { getMaestrosVentas } from "./controllers/maestroVentasController";
 import { pagarCuotaHandler, pagarVentaCompletaHandler } from './controllers/pagarCuotaController';
 import { publicarCatalogoHandler, subirImagenesHandler, guardarImagenLocalController, guardarImagenExtraController } from './controllers/sistemaController';
 import { eliminarPrendaHandler, eliminarPrendaPorCodigoHandler } from './controllers/eliminarPrendaController';
+import { listarMetodosPagoHandler } from './controllers/metodosPagoController'; // <--- NUEVO IMPORT
 import multer from 'multer';
 
 const router = Router();
@@ -35,6 +36,7 @@ router.get("/maestros-clientes", getMaestrosClientes);
 router.post("/registrar-venta", registrarVentaHandler);
 router.get("/listar-ventas", listarVentasHandler);
 router.get("/modalidad-pago", getMaestrosVentas);
+router.get("/metodos-pago", listarMetodosPagoHandler); // <--- NUEVA RUTA
 router.patch('/pagar-cuota/:id_cuota', pagarCuotaHandler);
 router.patch('/pagar-contado/:id_venta', pagarVentaCompletaHandler);
 router.post("/publicar-catalogo", publicarCatalogoHandler);
